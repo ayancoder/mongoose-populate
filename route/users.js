@@ -6,12 +6,24 @@ const User = require("../model/User");
 
 router.get("/:userId", (req, res) => {
   console.log("user id:",req.params.userId+":end");
-  User.findOne({'_id': ObjectId(req.params.userId.trim())})
+  /* User.findOne({'_id': ObjectId(req.params.userId.trim())})
    .populate("blogs") // key to populate
    .then(user => {
       res.json(user); 
    });
+ */
 
+   User.findOne({ _id: ObjectId(req.params.userId.trim()) })
+     .populate({
+       path: "blogs", // populate blogs
+       populate: {
+         path: "comments", // in blogs, populate comments
+         select: { body: 1 }
+       },
+     })
+     .then((user) => {
+       res.json(user);
+     });
 });
 
 router.post("/", async (req, res) => {
